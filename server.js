@@ -1,15 +1,25 @@
+// Ana uygulama dosyası
 const express = require('express');
 const bodyParser = require('body-parser');
-const db = require('./node-login/models/user'); // MongoDB bağlantısı
-//const app = require('./server'); // Express uygulaması
+const mongoose = require('mongoose');
+const authRoutes = require('./routes/authRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const config = require('./config/config');
+const cors= require("cors");
+
 const app = express();
-const port = 3000;
 
 app.use(bodyParser.json());
+app.use(cors());
 
-const userRoutes = require('./node-login/routes/user');
-app.use('/api/user', userRoutes);
+mongoose.connect(config.mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB bağlantısı başarılı'))
+  .catch(err => console.error('MongoDB bağlantı hatası:', err));
 
+app.use('/api/auth', authRoutes);
+app.use('/api', profileRoutes);
+
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
-    console.log(`Sunucu ${port} numaralı port üzerinde çalışıyor.`);
+  console.log(`Server running on port ${port}`);
 });
